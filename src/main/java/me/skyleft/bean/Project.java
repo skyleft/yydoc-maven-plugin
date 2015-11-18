@@ -12,7 +12,7 @@ public class Project {
     private String projectName;
     private String projectNameAlias;
     private String currentStatus;
-    private List<String> pics;
+    private String pics;
     private String description;
     private List<Module> modules;
 
@@ -32,11 +32,11 @@ public class Project {
         this.currentStatus = currentStatus;
     }
 
-    public List<String> getPics() {
+    public String getPics() {
         return pics;
     }
 
-    public void setPics(List<String> pics) {
+    public void setPics(String pics) {
         this.pics = pics;
     }
 

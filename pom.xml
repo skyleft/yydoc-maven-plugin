@@ -2,7 +2,7 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>me.skyleft</groupId>
+  <groupId>com.yy.expe</groupId>
   <artifactId>yydoc-maven-plugin</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>maven-plugin</packaging>
@@ -53,6 +53,21 @@
       <artifactId>javaparser</artifactId>
       <version>1.0.11</version>
     </dependency>
+    <dependency>
+      <groupId>org.apache.maven.scm</groupId>
+      <artifactId>maven-scm-api</artifactId>
+      <version>1.9</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven.scm</groupId>
+      <artifactId>maven-scm-provider-svnexe</artifactId>
+      <version>1.9</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jsoup</groupId>
+      <artifactId>jsoup</artifactId>
+      <version>1.8.3</version>
+    </dependency>
   </dependencies>
 
   <build>
@@ -84,8 +99,12 @@
   </build>
   <distributionManagement>
     <snapshotRepository>
-      <id>thirdparty</id>
-      <url>http://ec2-54-254-223-85.ap-southeast-1.compute.amazonaws.com:8081/nexus/content/repositories/thirdparty</url>
+      <id>jrepo2-public</id>
+      <url>http://jrepo2.yypm.com/nexus/content/repositories/snapshots/</url>
     </snapshotRepository>
+    <repository>
+      <id>jrepo2-public</id>
+      <url>http://jrepo2.yypm.com/nexus/content/repositories/releases/</url>
+    </repository>
   </distributionManagement>
 </project>

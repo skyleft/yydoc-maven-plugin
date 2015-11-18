@@ -11,6 +11,7 @@ public class Module {
     private String svn;
     private String url;
     private String dragon;
+    private String ips;
     private List<Interface> interfaces;
 
     public String getName() {
@@ -51,5 +52,13 @@ public class Module {
 
     public void setInterfaces(List<Interface> interfaces) {
         this.interfaces = interfaces;
+    }
+
+    public String getIps() {
+        return ips;
+    }
+
+    public void setIps(String ips) {
+        this.ips = ips;
     }
 }

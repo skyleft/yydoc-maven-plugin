@@ -26,7 +26,7 @@ public class TemplateRender {
             "> | *项*              | *详细*          |\n" +
             "> | ----------------- | ----------------|\n" +
             "> | 状态              | ${currentStatus!'目前状态'}          |\n" +
-            "> | 负责人            | <#if pic??><#list pics as pic>${pic}</#list></#if>|\n" +
+            "> | 负责人            | ${pics!'项目负责人'}|\n" +
             "\n" +
             "---\n" +
             "## 说明\n" +
@@ -38,7 +38,7 @@ public class TemplateRender {
             "## svn地址\n" +
             "<#if modules??>\n"+
             "<#list modules as module>\n" +
-            "    ${module_index + 1}. ${module.name}:${module.svn}\n" +
+            "    ${module_index + 1}. ${module.name!'模块名'}:${module.svn!'svn地址'}\n" +
             "</#list>\n" +
             "</#if>\n"+
             "\n" +
@@ -47,7 +47,7 @@ public class TemplateRender {
             "## URL\n" +
             "<#if modules??>\n"+
             "<#list modules as module>\n" +
-            "    ${module_index + 1}. ${module.name}:${module.url}\n" +
+            "    ${module_index + 1}. ${module.name!'模块名'}:${module.url!'域名'}\n" +
             "</#list>\n" +
             "</#if>\n"+
             "\n" +
@@ -56,17 +56,15 @@ public class TemplateRender {
             "<pre>\n" +
             "<#if modules??>\n"+
             "<#list modules as module>\n" +
-            "${module.name}\n" +
-            "    ip1\n" +
-            "    ip2\n" +
-            "    ...\n" +
+            "${module.name!'模块名'}\n" +
+            "    ${module.ips!'模块部署的ip'}\n" +
             "</#list>\n" +
             "</#if>\n"+
             "\n" +
             "潜龙位置:\n" +
             "<#if modules??>\n"+
             "<#list modules as module>\n" +
-            "${module.name}:此处填写模块在潜龙中的位置\n" +
+            "${module.name!'模块名'}:${module.dragon!'潜龙中位置'}\n" +
             "</#list>\n" +
             "</#if>\n"+
             "</pre>\n" +
@@ -76,11 +74,11 @@ public class TemplateRender {
             "## 接口描述\n" +
             "<#if modules??>\n"+
             "<#list modules as module>\n" +
-            "###${module.name}\n" +
-            "地址 | 入参 | 出参\n" +
-            "----|------|----\n" +
+            "* ${module.name}\n" +
+            "   地址 | 入参 | 出参\n" +
+            "   ----|------|----\n" +
             "<#list module.interfaces as interface>\n" +
-            "${interface.url}|${interface.inparam}|${interface.outparam}\n" +
+            "   ${interface.url}|${interface.inparam}|${interface.outparam}\n" +
             "</#list>\n" +
             "</#list>\n" +
             "</#if>\n"+

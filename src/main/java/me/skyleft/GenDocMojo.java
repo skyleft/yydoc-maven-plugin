@@ -16,28 +16,25 @@ package me.skyleft;
  * limitations under the License.
  */
 
-import com.sun.tools.javadoc.JavadocClassReader;
+import freemarker.template.utility.StringUtil;
 import japa.parser.JavaParser;
 import japa.parser.ast.CompilationUnit;
 import japa.parser.ast.comments.Comment;
 import me.skyleft.bean.Interface;
 import me.skyleft.bean.Module;
 import me.skyleft.bean.Project;
+import me.skyleft.utils.Consts;
 import me.skyleft.utils.TemplateRender;
 import org.apache.maven.model.Developer;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
-
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * Goal which generate markdown document
@@ -50,7 +47,7 @@ public class GenDocMojo
     /**
      * Location of the file.
      */
-    @Parameter(defaultValue = "${project.build.directory}", property = "outputDir", required = true)
+    @Parameter(defaultValue = "${project.basedir}", property = "outputDir", required = true)
     private File outputDirectory;
 
     @Parameter(defaultValue = "${project}", required = true, readonly = true)
@@ -60,31 +57,29 @@ public class GenDocMojo
             throws MojoExecutionException {
 
 
-        if (project.getParent()!=null)
-            return;
-
-        String projectName = project.getName();
-        List<String> developers = new ArrayList<String>();
-        for (Object developer:project.getDevelopers()){
-            developers.add(((Developer) developer).getName());
-        }
-        String description = project.getDescription();
         Properties properties = project.getProperties();
-        String projectNameAlias = properties.getProperty("projectNameAlias");
-        String currentStatus = properties.getProperty("currentStatus");
+        String projectName = properties.getProperty("yydoc.name");
+        String description = properties.getProperty("yydoc.desc");
+        String ifIgnore = properties.getProperty("yydoc.ignore");
+        if (ifIgnore!=null&&"true".equals(ifIgnore.toLowerCase())){
+            return;
+        }
+        String projectNameAlias = properties.getProperty("yydoc.alias");
+        String currentStatus = properties.getProperty("yydoc.status");
+        String developers = properties.getProperty("yydoc.pics");
 
 
         List<Module> modules = new ArrayList<Module>();
         List<MavenProject> childProjects = project.getCollectedProjects();
-        for (MavenProject childProject:childProjects){
+        if (childProjects==null || childProjects.size()<=0){
             Module module = new Module();
-            module.setName(childProject.getName());
-            Properties properties1 = childProject.getProperties();
-            module.setSvn(properties1.getProperty("svn"));
-            module.setUrl(properties1.getProperty("url"));
-            module.setDragon(properties1.getProperty("dragon"));
+            module.setName(projectName);
+            module.setSvn(properties.getProperty("yydoc.svn"));
+            module.setUrl(properties.getProperty("yydoc.domain"));
+            module.setDragon(properties.getProperty("yydoc.dragon"));
+            module.setIps(properties.getProperty("yydoc.ips"));
             List<Interface> interfaces = new ArrayList<Interface>();
-            List<String> sourcePaths = childProject.getCompileSourceRoots();
+            List<String> sourcePaths = project.getCompileSourceRoots();
             for (String sourcePath:sourcePaths){
                 List<File> javafiles = getAllJavaFiles(new File(sourcePath));
                 for (File f:javafiles){
@@ -98,8 +93,8 @@ public class GenDocMojo
                         for (Comment c:comments){
                             String co = c.getContent();
                         }
-                    } catch (Exception e){
-
+                    } catch (Throwable e){
+                        continue;
                     }finally {
                         if (in!=null)
                             try {
@@ -113,8 +108,49 @@ public class GenDocMojo
             }
             module.setInterfaces(interfaces);
             modules.add(module);
+        }else{
+            for (MavenProject childProject:childProjects){
+                Module module = new Module();
+                module.setName(childProject.getName());
+                Properties properties1 = childProject.getProperties();
+                module.setSvn(properties1.getProperty("yydoc.svn"));
+                module.setUrl(properties1.getProperty("yydoc.domain"));
+                module.setDragon(properties1.getProperty("yydoc.dragon"));
+                module.setIps(properties.getProperty("yydoc.ips"));
+                List<Interface> interfaces = new ArrayList<Interface>();
+                List<String> sourcePaths = childProject.getCompileSourceRoots();
+                for (String sourcePath:sourcePaths){
+                    List<File> javafiles = getAllJavaFiles(new File(sourcePath));
+                    for (File f:javafiles){
+                        CompilationUnit cu = null;
+                        FileInputStream in = null;
+                        try {
+                            // parse the file
+                            in = new FileInputStream(f);
+                            cu = JavaParser.parse(in);
+                            List<Comment> comments = cu.getComments();
+                            for (Comment c:comments){
+                                String co = c.getContent();
+                            }
+                        } catch (Throwable e){
+                            continue;
+                        }finally {
+                            if (in!=null)
+                                try {
+                                    in.close();
+                                } catch (IOException e) {
+                                    //e.printStackTrace();
+                                }
+                        }
+                    }
 
+                }
+                module.setInterfaces(interfaces);
+                modules.add(module);
+
+            }
         }
+
 
 
         Project project = new Project();
@@ -131,7 +167,7 @@ public class GenDocMojo
             f.mkdirs();
         }
 
-        File docFile = new File(f, "Readme.md");
+        File docFile = new File(f, Consts.DOC_FILE_NAME);
 
         OutputStreamWriter w = null;
 
@@ -156,11 +192,11 @@ public class GenDocMojo
 
     public List<File> getAllJavaFiles(File file){
         if (file.isDirectory()){
-            List<File> javafiles = Arrays.asList(file.listFiles(new FileFilter() {
+            List<File> javafiles = new LinkedList<File>(Arrays.asList(file.listFiles(new FileFilter() {
                 public boolean accept(File pathname) {
                     return pathname.getName().toLowerCase().endsWith(".java");
                 }
-            }));
+            })));
             for (File directory:file.listFiles(new FileFilter() {
                 public boolean accept(File pathname) {
                     return pathname.isDirectory();
