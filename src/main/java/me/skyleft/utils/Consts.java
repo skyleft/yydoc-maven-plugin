@@ -6,10 +6,10 @@ package me.skyleft.utils;
 public interface Consts {
 
     //文档资源svn根目录
-    String BASE_SVN_PATH = "xxx";
+    String BASE_SVN_PATH = "scm:svn:https://svn.yy.com/web/gh/dev-res-guide";
 
     //文档资源markdown根目录
-    String WORK_SVN_PATH = "xxx";
+    String WORK_SVN_PATH = "scm:svn:https://svn.yy.com/web/gh/dev-res-guide/posts/auto";
 
     //文档名称
     String DOC_FILE_NAME = "Readme.md";
