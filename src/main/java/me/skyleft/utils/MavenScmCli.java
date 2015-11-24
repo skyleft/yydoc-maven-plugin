@@ -27,8 +27,11 @@ import org.apache.maven.scm.repository.ScmRepositoryException;
 import org.codehaus.plexus.embed.Embedder;
 import org.codehaus.plexus.util.StringUtils;
 
-public class MavenScmCli
-{
+
+/**
+ * 版本控制工具类，目前只支持svn
+ */
+public class MavenScmCli {
 
     private ScmManager scmManager;
 
@@ -37,44 +40,38 @@ public class MavenScmCli
     // ----------------------------------------------------------------------
 
     public MavenScmCli()
-        throws Exception
-    {
+            throws Exception {
 
         scmManager = new BasicScmManager();
 
-        scmManager.setScmProvider( "svn", new SvnExeScmProvider() );
+        scmManager.setScmProvider("svn", new SvnExeScmProvider());
     }
 
 
-    public void addFile(String scmUrl, File file){
+    public void addFile(String scmUrl, File file) {
         List<File> synchronizedFiles = new ArrayList<File>();
 
         ScmRepository repository;
 
-        try
-        {
-            repository = scmManager.makeScmRepository( scmUrl );
-        }
-        catch ( NoSuchScmProviderException ex )
-        {
-            System.err.println( "Could not find a provider." );
+        try {
+            repository = scmManager.makeScmRepository(scmUrl);
+        } catch (NoSuchScmProviderException ex) {
+            System.err.println("Could not find a provider.");
 
-            return ;
-        }
-        catch ( ScmRepositoryException ex )
-        {
-            System.err.println( "Error while connecting to the repository" );
+            return;
+        } catch (ScmRepositoryException ex) {
+            System.err.println("Error while connecting to the repository");
 
-            ex.printStackTrace( System.err );
+            ex.printStackTrace(System.err);
 
-            return ;
+            return;
         }
         ScmFileSet scmFileSet = null;
         File dir = file.getParentFile();
         File fi = new File(file.getName());
         ScmFileSet fileSet = new ScmFileSet(dir, fi);
         try {
-            scmFileSet = new ScmFileSet(file.getParentFile(),file);
+            scmFileSet = new ScmFileSet(file.getParentFile(), file);
             AddScmResult addScmResult = scmManager.add(repository, scmFileSet);
         } catch (Exception e) {
             e.printStackTrace();
@@ -84,111 +81,78 @@ public class MavenScmCli
     }
 
 
-
     // ----------------------------------------------------------------------
     //
     // ----------------------------------------------------------------------
 
-    public void execute( String scmUrl, String command, File workingDirectory)
-    {
+    public void execute(String scmUrl, String command, File workingDirectory) {
         ScmRepository repository;
 
-        try
-        {
-            repository = scmManager.makeScmRepository( scmUrl );
-        }
-        catch ( NoSuchScmProviderException ex )
-        {
-            System.err.println( "Could not find a provider." );
+        try {
+            repository = scmManager.makeScmRepository(scmUrl);
+        } catch (NoSuchScmProviderException ex) {
+            System.err.println("Could not find a provider.");
 
             return;
-        }
-        catch ( ScmRepositoryException ex )
-        {
-            System.err.println( "Error while connecting to the repository" );
+        } catch (ScmRepositoryException ex) {
+            System.err.println("Error while connecting to the repository");
 
-            ex.printStackTrace( System.err );
+            ex.printStackTrace(System.err);
 
             return;
         }
 
-        try
-        {
-            if ( command.equals( "checkout" ) )
-            {
-                checkOut( repository, workingDirectory );
+        try {
+            if (command.equals("checkout")) {
+                checkOut(repository, workingDirectory);
+            } else if (command.equals("checkin")) {
+                checkIn(repository, workingDirectory);
+            } else if (command.equals("update")) {
+                update(repository, workingDirectory);
+            } else {
+                System.err.println("Unknown SCM command '" + command + "'.");
             }
-            else if ( command.equals( "checkin" ) )
-            {
-                checkIn( repository, workingDirectory );
-            }
-            else if ( command.equals( "update" ) )
-            {
-                update( repository, workingDirectory );
-            }
-            else
-            {
-                System.err.println( "Unknown SCM command '" + command + "'." );
-            }
-        }
-        catch ( ScmException ex )
-        {
-            System.err.println( "Error while executing the SCM command." );
+        } catch (ScmException ex) {
+            System.err.println("Error while executing the SCM command.");
 
-            ex.printStackTrace( System.err );
+            ex.printStackTrace(System.err);
 
             return;
         }
     }
 
 
-    public void execute( String scmUrl, String command, File workingDirectory,boolean rec)
-    {
+    public void execute(String scmUrl, String command, File workingDirectory, boolean rec) {
         ScmRepository repository;
 
-        try
-        {
-            repository = scmManager.makeScmRepository( scmUrl );
-        }
-        catch ( NoSuchScmProviderException ex )
-        {
-            System.err.println( "Could not find a provider." );
+        try {
+            repository = scmManager.makeScmRepository(scmUrl);
+        } catch (NoSuchScmProviderException ex) {
+            System.err.println("Could not find a provider.");
 
             return;
-        }
-        catch ( ScmRepositoryException ex )
-        {
-            System.err.println( "Error while connecting to the repository" );
+        } catch (ScmRepositoryException ex) {
+            System.err.println("Error while connecting to the repository");
 
-            ex.printStackTrace( System.err );
+            ex.printStackTrace(System.err);
 
             return;
         }
 
-        try
-        {
-            if ( command.equals( "checkout" ) )
-            {
-                checkOut( repository, workingDirectory ,rec);
+        try {
+            if (command.equals("checkout")) {
+                checkOut(repository, workingDirectory, rec);
+            } else if (command.equals("checkin")) {
+                checkIn(repository, workingDirectory);
+            } else if (command.equals("update")) {
+                update(repository, workingDirectory);
+            } else {
+                System.err.println("Unknown SCM command '" + command + "'.");
             }
-            else if ( command.equals( "checkin" ) )
-            {
-                checkIn( repository, workingDirectory);
-            }
-            else if ( command.equals( "update" ) )
-            {
-                update( repository, workingDirectory);
-            }
-            else
-            {
-                System.err.println( "Unknown SCM command '" + command + "'." );
-            }
-        }
-        catch ( ScmException ex )
-        {
-            System.err.println( "Error while executing the SCM command." );
+        } catch (ScmException ex) {
+            System.err.println("Error while executing the SCM command.");
 
-            ex.printStackTrace( System.err );
+            ex.printStackTrace(System.err);
 
             return;
         }
@@ -198,89 +162,77 @@ public class MavenScmCli
     //
     // ----------------------------------------------------------------------
 
-    private void checkOut( ScmRepository scmRepository, File workingDirectory)
-        throws ScmException
-    {
-        if ( workingDirectory.exists() )
-        {
-            System.err.println( "The working directory already exist: '" + workingDirectory.getAbsolutePath()
-                + "'." );
+    private void checkOut(ScmRepository scmRepository, File workingDirectory)
+            throws ScmException {
+        if (workingDirectory.exists()) {
+            System.err.println("The working directory already exist: '" + workingDirectory.getAbsolutePath()
+                    + "'.");
 
             return;
         }
 
-        if ( !workingDirectory.mkdirs() )
-        {
+        if (!workingDirectory.mkdirs()) {
             System.err.println(
-                "Error while making the working directory: '" + workingDirectory.getAbsolutePath() + "'." );
+                    "Error while making the working directory: '" + workingDirectory.getAbsolutePath() + "'.");
 
             return;
         }
 
-        CheckOutScmResult result = scmManager.checkOut( scmRepository, new ScmFileSet( workingDirectory ) );
+        CheckOutScmResult result = scmManager.checkOut(scmRepository, new ScmFileSet(workingDirectory));
 
-        if ( !result.isSuccess() )
-        {
-            showError( result );
+        if (!result.isSuccess()) {
+            showError(result);
 
             return;
         }
 
         List<ScmFile> checkedOutFiles = result.getCheckedOutFiles();
 
-        System.out.println( "Checked out these files: " );
+        System.out.println("Checked out these files: ");
 
-        for ( ScmFile file : checkedOutFiles )
-        {
-            System.out.println( " " + file.getPath() );
+        for (ScmFile file : checkedOutFiles) {
+            System.out.println(" " + file.getPath());
         }
     }
 
-    private void checkOut( ScmRepository scmRepository, File workingDirectory,boolean rec)
-            throws ScmException
-    {
-        if ( workingDirectory.exists() )
-        {
-            System.err.println( "The working directory already exist: '" + workingDirectory.getAbsolutePath()
-                    + "'." );
+    private void checkOut(ScmRepository scmRepository, File workingDirectory, boolean rec)
+            throws ScmException {
+        if (workingDirectory.exists()) {
+            System.err.println("The working directory already exist: '" + workingDirectory.getAbsolutePath()
+                    + "'.");
 
             return;
         }
 
-        if ( !workingDirectory.mkdirs() )
-        {
+        if (!workingDirectory.mkdirs()) {
             System.err.println(
-                    "Error while making the working directory: '" + workingDirectory.getAbsolutePath() + "'." );
+                    "Error while making the working directory: '" + workingDirectory.getAbsolutePath() + "'.");
 
             return;
         }
 
-        CheckOutScmResult result = scmManager.checkOut( scmRepository, new ScmFileSet( workingDirectory ),rec);
+        CheckOutScmResult result = scmManager.checkOut(scmRepository, new ScmFileSet(workingDirectory), rec);
 
-        if ( !result.isSuccess() )
-        {
-            showError( result );
+        if (!result.isSuccess()) {
+            showError(result);
 
             return;
         }
 
         List<ScmFile> checkedOutFiles = result.getCheckedOutFiles();
 
-        System.out.println( "Checked out these files: " );
+        System.out.println("Checked out these files: ");
 
-        for ( ScmFile file : checkedOutFiles )
-        {
-            System.out.println( " " + file.getPath() );
+        for (ScmFile file : checkedOutFiles) {
+            System.out.println(" " + file.getPath());
         }
     }
 
-    private void checkIn( ScmRepository scmRepository, File workingDirectory )
-        throws ScmException
-    {
-        if ( !workingDirectory.exists() )
-        {
-            System.err.println( "The working directory doesn't exist: '" + workingDirectory.getAbsolutePath()
-                + "'." );
+    private void checkIn(ScmRepository scmRepository, File workingDirectory)
+            throws ScmException {
+        if (!workingDirectory.exists()) {
+            System.err.println("The working directory doesn't exist: '" + workingDirectory.getAbsolutePath()
+                    + "'.");
 
             return;
         }
@@ -288,52 +240,46 @@ public class MavenScmCli
         String message = "";
 
         CheckInScmResult result =
-            scmManager.checkIn( scmRepository, new ScmFileSet( workingDirectory ), message );
+                scmManager.checkIn(scmRepository, new ScmFileSet(workingDirectory), message);
 
-        if ( !result.isSuccess() )
-        {
-            showError( result );
+        if (!result.isSuccess()) {
+            showError(result);
 
             return;
         }
 
         List<ScmFile> checkedInFiles = result.getCheckedInFiles();
 
-        System.out.println( "Checked in these files: " );
+        System.out.println("Checked in these files: ");
 
-        for ( ScmFile file : checkedInFiles )
-        {
-            System.out.println( " " + file.getPath() );
+        for (ScmFile file : checkedInFiles) {
+            System.out.println(" " + file.getPath());
         }
     }
 
-    private void update( ScmRepository scmRepository, File workingDirectory)
-        throws ScmException
-    {
-        if ( !workingDirectory.exists() )
-        {
-            System.err.println( "The working directory doesn't exist: '" + workingDirectory.getAbsolutePath()
-                + "'." );
+    private void update(ScmRepository scmRepository, File workingDirectory)
+            throws ScmException {
+        if (!workingDirectory.exists()) {
+            System.err.println("The working directory doesn't exist: '" + workingDirectory.getAbsolutePath()
+                    + "'.");
 
             return;
         }
 
-        UpdateScmResult result = scmManager.update( scmRepository, new ScmFileSet( workingDirectory ));
+        UpdateScmResult result = scmManager.update(scmRepository, new ScmFileSet(workingDirectory));
 
-        if ( !result.isSuccess() )
-        {
-            showError( result );
+        if (!result.isSuccess()) {
+            showError(result);
 
             return;
         }
 
         List<ScmFile> updatedFiles = result.getUpdatedFiles();
 
-        System.out.println( "Updated these files: " );
+        System.out.println("Updated these files: ");
 
-        for ( ScmFile file : updatedFiles )
-        {
-            System.out.println( " " + file.getPath() );
+        for (ScmFile file : updatedFiles) {
+            System.out.println(" " + file.getPath());
         }
     }
 
@@ -341,28 +287,23 @@ public class MavenScmCli
     //
     // ----------------------------------------------------------------------
 
-    private void showError( ScmResult result )
-    {
-        System.err.println( "There was a error while executing the SCM command." );
+    private void showError(ScmResult result) {
+        System.err.println("There was a error while executing the SCM command.");
 
         String providerMessage = result.getProviderMessage();
 
-        if ( !StringUtils.isEmpty( providerMessage ) )
-        {
-            System.err.println( "Error message from the provider: " + providerMessage );
-        }
-        else
-        {
-            System.err.println( "The provider didn't give a error message." );
+        if (!StringUtils.isEmpty(providerMessage)) {
+            System.err.println("Error message from the provider: " + providerMessage);
+        } else {
+            System.err.println("The provider didn't give a error message.");
         }
 
         String output = result.getCommandOutput();
 
-        if ( !StringUtils.isEmpty( output ) )
-        {
-            System.err.println( "Command output:" );
+        if (!StringUtils.isEmpty(output)) {
+            System.err.println("Command output:");
 
-            System.err.println( output );
+            System.err.println(output);
         }
     }
 

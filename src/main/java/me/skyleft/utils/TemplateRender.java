@@ -36,53 +36,54 @@ public class TemplateRender {
             "\n" +
             "---\n" +
             "## svn地址\n" +
-            "<#if modules??>\n"+
+            "<#if modules??>\n" +
             "<#list modules as module>\n" +
             "    ${module_index + 1}. ${module.name!'模块名'}:${module.svn!'svn地址'}\n" +
             "</#list>\n" +
-            "</#if>\n"+
+            "</#if>\n" +
             "\n" +
             "\n" +
             "---\n" +
             "## URL\n" +
-            "<#if modules??>\n"+
+            "<#if modules??>\n" +
             "<#list modules as module>\n" +
             "    ${module_index + 1}. ${module.name!'模块名'}:${module.url!'域名'}\n" +
             "</#list>\n" +
-            "</#if>\n"+
+            "</#if>\n" +
             "\n" +
             "---\n" +
             "## 部署\n" +
             "<pre>\n" +
-            "<#if modules??>\n"+
+            "<#if modules??>\n" +
             "<#list modules as module>\n" +
             "${module.name!'模块名'}\n" +
             "    ${module.ips!'模块部署的ip'}\n" +
             "</#list>\n" +
-            "</#if>\n"+
+            "</#if>\n" +
             "\n" +
             "潜龙位置:\n" +
-            "<#if modules??>\n"+
+            "<#if modules??>\n" +
             "<#list modules as module>\n" +
             "${module.name!'模块名'}:${module.dragon!'潜龙中位置'}\n" +
             "</#list>\n" +
-            "</#if>\n"+
+            "</#if>\n" +
             "</pre>\n" +
             "\n" +
             "\n" +
             "---\n" +
             "## 接口描述\n" +
-            "<#if modules??>\n"+
+            "<#if modules??>\n" +
             "<#list modules as module>\n" +
             "* ${module.name}\n" +
-            "   地址 | 入参 | 出参\n" +
-            "   ----|------|----\n" +
+            "   地址 | 入参 | 出参 | 描述\n" +
+            "   ----|------|-----|-----\n" +
             "<#list module.interfaces as interface>\n" +
-            "   ${interface.url}|${interface.inparam}|${interface.outparam}\n" +
+            "   ${interface.url!'接口URL'}|${interface.inparam!'接口参数'}|${interface.outparam!'接口返回'}|${interface.desc!'接口描述'}\n" +
             "</#list>\n" +
             "</#list>\n" +
-            "</#if>\n"+
+            "</#if>\n" +
             "\n";
+
     static {
         try {
             defaultMdTpl = new Template("defaultMdTpl", new StringReader(defaultMdTplStr), cfg);
@@ -92,11 +93,11 @@ public class TemplateRender {
         }
     }
 
-    public static String render(Project project){
+    public static String render(Project project) {
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
         Writer writer = new OutputStreamWriter(bout);
         try {
-            defaultMdTpl.process(project,writer);
+            defaultMdTpl.process(project, writer);
             writer.flush();
             writer.close();
         } catch (TemplateException e) {

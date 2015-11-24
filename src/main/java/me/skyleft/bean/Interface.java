@@ -5,10 +5,30 @@ package me.skyleft.bean;
  */
 public class Interface {
 
+    /**
+     * 接口名
+     */
     private String name;
+
+    /**
+     * 接口地址
+     */
     private String url;
+
+    /**
+     * 入参（暂时用字符串简化表示）
+     */
     private String inparam;
+
+    /**
+     * 出参数（暂时用字符串简化表示）
+     */
     private String outparam;
+
+    /**
+     * 描述
+     */
+    private String desc;
 
     public String getName() {
         return name;
@@ -40,5 +60,24 @@ public class Interface {
 
     public void setOutparam(String outparam) {
         this.outparam = outparam;
+    }
+
+    public String getDesc() {
+        return desc;
+    }
+
+    public void setDesc(String desc) {
+        this.desc = desc;
+    }
+
+    @Override
+    public String toString() {
+        return "Interface{" +
+                "name='" + name + '\'' +
+                ", url='" + url + '\'' +
+                ", inparam='" + inparam + '\'' +
+                ", outparam='" + outparam + '\'' +
+                ", desc='" + desc + '\'' +
+                '}';
     }
 }

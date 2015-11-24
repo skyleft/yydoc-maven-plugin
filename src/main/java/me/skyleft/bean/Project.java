@@ -9,11 +9,34 @@ import java.util.List;
  */
 public class Project {
 
+    /**
+     * 项目名
+     */
     private String projectName;
+
+    /**
+     * 项目别名
+     */
     private String projectNameAlias;
+
+    /**
+     * 当前状态
+     */
     private String currentStatus;
+
+    /**
+     * 负责人
+     */
     private String pics;
+
+    /**
+     * 描述
+     */
     private String description;
+
+    /**
+     * 包含的模块
+     */
     private List<Module> modules;
 
     public String getProjectName() {
@@ -62,5 +85,17 @@ public class Project {
 
     public void setProjectNameAlias(String projectNameAlias) {
         this.projectNameAlias = projectNameAlias;
+    }
+
+    @Override
+    public String toString() {
+        return "Project{" +
+                "projectName='" + projectName + '\'' +
+                ", projectNameAlias='" + projectNameAlias + '\'' +
+                ", currentStatus='" + currentStatus + '\'' +
+                ", pics='" + pics + '\'' +
+                ", description='" + description + '\'' +
+                ", modules=" + modules +
+                '}';
     }
 }

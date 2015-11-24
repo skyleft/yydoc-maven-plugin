@@ -16,23 +16,14 @@ package me.skyleft;
  * limitations under the License.
  */
 
-import com.sun.org.apache.bcel.internal.generic.IF_ACMPEQ;
-import japa.parser.JavaParser;
-import japa.parser.ast.CompilationUnit;
-import japa.parser.ast.comments.Comment;
-import me.skyleft.bean.Interface;
-import me.skyleft.bean.Module;
-import me.skyleft.bean.Project;
 import me.skyleft.utils.Consts;
 import me.skyleft.utils.MavenScmCli;
-import me.skyleft.utils.TemplateRender;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.scm.ScmVersion;
 import org.codehaus.plexus.util.FileUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -40,19 +31,15 @@ import org.jsoup.nodes.Element;
 
 import java.io.*;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.Properties;
 
 /**
- * Goal which generate markdown document
- *
- * @deprecated Don't use!
+ * Goal which publish the doc to yy doc server
  */
 @Mojo(name = "publish", defaultPhase = LifecyclePhase.PROCESS_SOURCES)
 public class PublishMojo
         extends AbstractMojo {
-    /**
-     * Location of the file.
-     */
+
     @Parameter(defaultValue = "${project.basedir}", property = "outputDir", required = true)
     private File outputDirectory;
 
@@ -67,24 +54,24 @@ public class PublishMojo
         } catch (Exception e) {
             e.printStackTrace();
         }
-        if (mavenScmCli==null) return;
-        File indexDir = new File(outputDirectory.getAbsolutePath()+File.separator+".tmp.index");
-        File workDir = new File(outputDirectory.getAbsolutePath()+File.separator+".tmp.auto");
-        if (indexDir.exists()){
+        if (mavenScmCli == null) return;
+        File indexDir = new File(outputDirectory.getAbsolutePath() + File.separator + ".tmp.index");
+        File workDir = new File(outputDirectory.getAbsolutePath() + File.separator + ".tmp.auto");
+        if (indexDir.exists()) {
             getLog().error("首页工作目录已存在,请手动清除");
             return;
-        }else{
-            mavenScmCli.execute(Consts.BASE_SVN_PATH,"checkout",indexDir,false);
+        } else {
+            mavenScmCli.execute(Consts.BASE_SVN_PATH, "checkout", indexDir, false);
         }
-        if(workDir.exists()){
+        if (workDir.exists()) {
             getLog().error("AUTO工作目录已存在,请手动清除");
             return;
-        }else{
-            mavenScmCli.execute(Consts.WORK_SVN_PATH,"checkout",workDir);
+        } else {
+            mavenScmCli.execute(Consts.WORK_SVN_PATH, "checkout", workDir);
         }
 
-        File indexFile = new File(indexDir.getAbsolutePath()+File.separator+Consts.INDEX_FILE_NAME);
-        if (indexFile==null || !indexFile.exists()){
+        File indexFile = new File(indexDir.getAbsolutePath() + File.separator + Consts.INDEX_FILE_NAME);
+        if (indexFile == null || !indexFile.exists()) {
             getLog().error("文档库首页html不存在");
             clean(indexDir);
             clean(workDir);
@@ -94,7 +81,7 @@ public class PublishMojo
         Properties properties = project.getProperties();
         String projectName = properties.getProperty("yydoc.name");
         String ifIgnore = properties.getProperty("yydoc.ignore");
-        if (ifIgnore!=null&&"true".equals(ifIgnore.toLowerCase())){
+        if (ifIgnore != null && "true".equals(ifIgnore.toLowerCase())) {
             clean(indexDir);
             clean(workDir);
             return;
@@ -102,16 +89,16 @@ public class PublishMojo
         String projectNameAlias = properties.getProperty("yydoc.alias");
         String currentStatus = properties.getProperty("yydoc.status");
         String developers = properties.getProperty("yydoc.pics");
-        if(projectName==null||"".equals(projectName.trim())||projectNameAlias==null||"".equals(projectNameAlias.trim())){
+        if (projectName == null || "".equals(projectName.trim()) || projectNameAlias == null || "".equals(projectNameAlias.trim())) {
             getLog().error("yydoc项目名和别名不能为空");
             clean(indexDir);
             clean(workDir);
             return;
         }
-        File currentDir = new File(workDir.getAbsolutePath()+File.separator+"docs"+File.separator+projectNameAlias);
+        File currentDir = new File(workDir.getAbsolutePath() + File.separator + "docs" + File.separator + projectNameAlias);
         File docFile;
-        if(!currentDir.exists()){
-            if(!currentDir.mkdirs()){
+        if (!currentDir.exists()) {
+            if (!currentDir.mkdirs()) {
                 getLog().error("创建工作目录失败");
                 clean(indexDir);
                 clean(workDir);
@@ -119,18 +106,18 @@ public class PublishMojo
             }
         }
 
-        docFile = new File(outputDirectory.getAbsolutePath()+File.separator+Consts.DOC_FILE_NAME);
-        if (docFile!=null && docFile.exists()){
-            File destFile = new File(currentDir.getAbsolutePath()+File.separator+Consts.DOC_FILE_NAME);
+        docFile = new File(outputDirectory.getAbsolutePath() + File.separator + Consts.DOC_FILE_NAME);
+        if (docFile != null && docFile.exists()) {
+            File destFile = new File(currentDir.getAbsolutePath() + File.separator + Consts.DOC_FILE_NAME);
             try {
-                FileUtils.copyFile(docFile,destFile);
+                FileUtils.copyFile(docFile, destFile);
             } catch (IOException e) {
                 getLog().error("拷贝文档失败");
                 clean(indexDir);
                 clean(workDir);
                 return;
             }
-        }else{
+        } else {
             getLog().error("项目文档不存在，请先运行 yydoc:gen-doc 生成文档");
         }
 
@@ -142,19 +129,19 @@ public class PublishMojo
         }
         Element div = doc.select("div#nav-hatch > div").last();
         Boolean menuOk = false;
-        for (Element ele : div.getElementsByTag("li")){
+        for (Element ele : div.getElementsByTag("li")) {
             String nid = ele.attr("nid");
-            if (projectNameAlias.equals(nid)){
+            if (projectNameAlias.equals(nid)) {
                 getLog().info("文档库导航已存在此菜单");
                 menuOk = true;
                 break;
             }
         }
-        if (menuOk){
-            mavenScmCli.addFile(Consts.WORK_SVN_PATH,currentDir);
-            mavenScmCli.addFile(Consts.WORK_SVN_PATH,new File(currentDir.getAbsolutePath()+File.separator+Consts.DOC_FILE_NAME));
+        if (menuOk) {
+            mavenScmCli.addFile(Consts.WORK_SVN_PATH, currentDir);
+            mavenScmCli.addFile(Consts.WORK_SVN_PATH, new File(currentDir.getAbsolutePath() + File.separator + Consts.DOC_FILE_NAME));
             mavenScmCli.execute(Consts.WORK_SVN_PATH, "checkin", workDir);
-        }else{
+        } else {
             StringBuilder appendNode = new StringBuilder();
             appendNode.append("<li nid='").append(projectNameAlias).append("'><a href='#' onclick=\"showContent('/posts/auto/docs/");
             appendNode.append(projectNameAlias);
@@ -165,13 +152,13 @@ public class PublishMojo
             div.append(appendNode.toString());
             try {
                 String newIndexHtml = doc.outerHtml();
-                if (newIndexHtml!=null && newIndexHtml.trim().length()>0){
+                if (newIndexHtml != null && newIndexHtml.trim().length() > 0) {
                     //FileUtils.fileWrite(indexFile, newIndexHtml);
                     BufferedWriter buf = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(indexFile), Charset.forName("UTF-8")));
                     buf.write(newIndexHtml);
                     buf.flush();
                     buf.close();
-                }else{
+                } else {
                     getLog().error("首页文档处理失败");
                     clean(indexDir);
                     clean(workDir);
@@ -180,14 +167,14 @@ public class PublishMojo
 
             } catch (IOException e) {
                 e.printStackTrace();
-                getLog().error("更新文档库首页出错"+e.getMessage());
+                getLog().error("更新文档库首页出错" + e.getMessage());
                 clean(indexDir);
                 clean(workDir);
                 return;
             }
-            mavenScmCli.execute(Consts.BASE_SVN_PATH,"checkin",indexDir);
-            mavenScmCli.addFile(Consts.WORK_SVN_PATH,currentDir);
-            mavenScmCli.addFile(Consts.WORK_SVN_PATH,new File(currentDir.getAbsolutePath()+File.separator+Consts.DOC_FILE_NAME));
+            mavenScmCli.execute(Consts.BASE_SVN_PATH, "checkin", indexDir);
+            mavenScmCli.addFile(Consts.WORK_SVN_PATH, currentDir);
+            mavenScmCli.addFile(Consts.WORK_SVN_PATH, new File(currentDir.getAbsolutePath() + File.separator + Consts.DOC_FILE_NAME));
             mavenScmCli.execute(Consts.WORK_SVN_PATH, "checkin", workDir);
         }
 
@@ -195,23 +182,22 @@ public class PublishMojo
         clean(workDir);
 
 
-
     }
 
-    private void clean(File f){
-        try{
-            for (File cf:f.listFiles()){
-                if(cf.isDirectory() && cf.listFiles()!=null && cf.listFiles().length>0){
+    private void clean(File f) {
+        try {
+            for (File cf : f.listFiles()) {
+                if (cf.isDirectory() && cf.listFiles() != null && cf.listFiles().length > 0) {
                     clean(cf);
-                }else{
+                } else {
                     cf.delete();
                 }
             }
             f.delete();
-        }catch (Exception e){}
+        } catch (Exception e) {
+        }
 
     }
-
 
 
 }
