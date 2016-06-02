@@ -36,7 +36,9 @@
     </properties>
                 
 *若项目组织形式为一个父pom下边有多个模块的形式，由于执行maven的时候，往往将目标在子模块中也去执行，
-为避免子模块重复生成子文档，需要在子模块的pom中，加属性<yydoc.ignore>true</yydoc.ignore>*
+为避免子模块重复生成子文档，需要在子模块的pom中，加属性
+    
+    <yydoc.ignore>true</yydoc.ignore>
 
 ### 配置对外接口
 
