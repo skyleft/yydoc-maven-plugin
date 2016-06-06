@@ -74,7 +74,7 @@ public class TemplateRender {
             "## 接口描述\n" +
             "<#if modules??>\n" +
             "<#list modules as module>\n" +
-            "* ${module.name}\n" +
+            "* ${module.name!'模块名'}\n" +
             "   地址 | 入参 | 出参 | 描述\n" +
             "   ----|------|-----|-----\n" +
             "<#list module.interfaces as interface>\n" +

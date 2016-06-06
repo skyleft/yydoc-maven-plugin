@@ -64,5 +64,4 @@
 *执行 mvn yydoc:publish*
 
 ## 存在的问题
-* 开发指引的server原有一个五分钟自动拉取svn的任务，目前好像不生效了，执行完publish之后，还要在开发指引的server上执行一下更新命令
 * 插件首先checkout下开发指引的index.html，若在插件的执行过程中，有别的用户，update了index.html，会导致插件后面提交失败。需要重新运行。
